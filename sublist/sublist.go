@@ -1,7 +1,5 @@
 package sublist
 
-import "strings"
-
 const (
 	EQ    = "equal"
 	UNE   = "unequal"
@@ -11,66 +9,39 @@ const (
 
 type Relation string
 
-var blank = []int{}
-
 func Sublist(listOne, listTwo []int) Relation {
-	if s, ok := blankCases(listOne, listTwo); ok {
-		return s
+	switch {
+	case len(listOne) == len(listTwo) && isSub(listOne, listTwo):
+		return EQ
+	case len(listOne) < len(listTwo) && isSub(listOne, listTwo):
+		return SUB
+	case len(listOne) > len(listTwo) && isSub(listTwo, listOne):
+		return SUPER
+	default:
+		return UNE
 	}
-
-	if s, ok := equal(listOne, listTwo); ok {
-		return s
-	}
-
-	one := toString(listOne)
-	two := toString(listTwo)
-
-	if len(one) < len(two) {
-		if strings.Contains(two, one) {
-			return SUB
-		}
-	}
-
-	if len(two) < len(one) {
-		if strings.Contains(one, two) {
-			return SUPER
-		}
-	}
-
-	return UNE
 }
 
-func blankCases(listOne, listTwo []int) (Relation, bool) {
-	if len(listOne) == 0 { //Slices can only be tested with nil
-		switch {
-		case len(listTwo) == 0:
-			return EQ, true
-		default:
-			return SUB, true
-		}
+// list1 is assumed to be shorter or equal to list2
+func isSub(list1, list2 []int) bool {
+	if len(list1) == 0 || len(list2) == 0 {
+		return true
 	}
-	if len(listTwo) == 0 && len(listOne) > 1 {
-		return SUPER, true
-	}
-	return "", false
-}
-
-func equal(listOne, listTwo []int) (Relation, bool) {
-	if len(listOne) == len(listTwo) {
-		for i := range listOne {
-			if listOne[i] != listTwo[i] {
-				return UNE, false
+	//With the above assumption, the least number of iterations required is 1
+	//That is, len(list2) - len(list1) is 0, hence needed 1 more in that case
+	iterNeeded := len(list2) - len(list1) + 1
+	for j := 0; j < iterNeeded; j++ {
+		match := true
+		for i, n := range list1 {
+			if n != list2[j+i] {
+				match = false
+				break
 			}
 		}
-		return EQ, true
-	}
-	return UNE, false
-}
 
-func toString(list []int) string {
-	r := make([]rune, len(list))
-	for i := range list {
-		r[i] = '0' + rune(list[i])
+		if match {
+			return true
+		}
 	}
-	return string(r)
+	return false
 }
