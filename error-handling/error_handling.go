@@ -1,40 +1,27 @@
 package erratum
 
-import (
-	"errors"
-)
-
-var trErr TransientError
-
-func Use(o ResourceOpener, input string) (ultErr error) {
+func Use(o ResourceOpener, input string) (err error) {
 	var r Resource
-	var e error
-
-	for {
-		r, e = o()
-		if e != nil {
-			if errors.As(e, &trErr) {
-				continue
-			} else {
-				return e
-			}
+	for r, err = o(); err != nil; r, err = o() {
+		if _, ok := err.(TransientError); ok {
+			continue
 		} else {
-			break
+			return err
 		}
 	}
 
 	defer r.Close()
-	defer func(res Resource) {
+	defer func() {
 		if rec := recover(); rec != nil {
 			if frob, ok := rec.(FrobError); ok {
-				res.Defrob(frob.defrobTag)
-				ultErr = frob
+				r.Defrob(frob.defrobTag)
+				err = frob
 			} else {
-				ultErr = rec.(error)
+				err = rec.(error)
 			}
 		}
-	}(r)
+	}()
 	r.Frob(input)
 
-	return ultErr
+	return err
 }
