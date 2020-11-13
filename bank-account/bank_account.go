@@ -19,8 +19,6 @@ func (a *Account) Balance() (balance int64, ok bool) {
 	if !a.open {
 		return 0, false
 	}
-	//a.lock.Lock()
-	//defer a.lock.Unlock()
 	balance = a.amount
 	return balance, true
 }
