@@ -66,15 +66,13 @@ type readWriteCounter struct {
 
 func NewReadCounter(reader io.Reader) ReadCounter {
 	return &readCounter{
-		r:       reader,
-		counter: counter{},
+		r: reader,
 	}
 }
 
 func NewWriteCounter(writer io.Writer) WriteCounter {
 	return &writeCounter{
-		w:       writer,
-		counter: counter{},
+		w: writer,
 	}
 }
 
