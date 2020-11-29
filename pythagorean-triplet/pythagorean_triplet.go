@@ -2,15 +2,21 @@ package pythagorean
 
 type Triplet [3]int
 
-func Range(min, max int) []Triplet {
-	result := []Triplet{}
-	for i := min; i <= max-2; i++ {
-		for j := i + 1; j <= max-1; j++ {
-			for k := j + 1; k <= max; k++ {
-				if i*i+j*j == k*k {
-					result = append(result, Triplet{i, j, k})
-				}
+func Range(min, max int) (result []Triplet) {
+	for a := min; a <= max-2; a++ {
+		b := a + 1
+		c := b + 1
+		if c*c > a*a+b*b {
+			continue
+		}
+		for c <= max {
+			for a*a+b*b > c*c {
+				c++
 			}
+			if a*a+b*b == c*c {
+				result = append(result, Triplet{a, b, c})
+			}
+			b++
 		}
 	}
 	return result
