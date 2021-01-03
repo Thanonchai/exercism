@@ -23,32 +23,25 @@ func Encode(pt string) string {
 	pt = clean(pt)
 	row, col := calcRowCol(pt)
 	ss := splitRectangle(row, col, pt)
-	result := transpose(ss)
-	return strings.Join(result, " ")
-}
-
-func transpose(ss []string) []string {
-	row := len(ss)
-	result := []string{}
-	for j := 0; j < len(ss[0]); j++ {
-		line := strings.Builder{}
-		for k := 0; k < row; k++ {
-			line.WriteByte(ss[k][j])
-		}
-		result = append(result, line.String())
-	}
-	return result
+	return strings.Join(ss, " ")
 }
 
 func splitRectangle(row, col int, pt string) []string {
-	ss := []string{}
-	for i := 0; i+col <= len(pt); i += col {
-		ss = append(ss, pt[i:i+col])
+	var ss []strings.Builder
+	for i := 0; i < col; i++ {
+		ss = append(ss, strings.Builder{})
 	}
-	if row*col > len(pt) {
-		ss = append(ss, pt[(row-1)*col:]+strings.Repeat(" ", row*col-len(pt)))
+	for i, r := range pt {
+		ss[i%col].WriteRune(r)
 	}
-	return ss
+	result := []string{}
+	for i := range ss {
+		if ss[i].Len() < row {
+			ss[i].WriteString(strings.Repeat(" ", row-ss[i].Len()))
+		}
+		result = append(result, ss[i].String())
+	}
+	return result
 }
 
 func clean(input string) (output string) {
