@@ -14,19 +14,27 @@ func LargestSeriesProduct(digits string, span int) (int, error) {
 		return -1, errors.New("Invalid span.")
 	}
 
-	result := -1
-	for i := 0; i+span <= len(digits); i++ {
-		current := 1
-		for j := i; j < i+span; j++ {
-			digit := int(digits[j] - '0')
-			if digit < 0 || digit > 9 {
-				return -1, errors.New("Invalid character found")
+	s, max, current := 0, 0, 1
+	mem := make([]int, span)
+	for _, r := range digits {
+		d := int(r - '0')
+		switch {
+		case d < 0 || d > 9:
+			return -1, errors.New("Invalid character found")
+		case d == 0:
+			s = 0
+			current = 1
+		default:
+			current *= d
+			if s >= span {
+				current /= mem[s%span]
 			}
-			current = current * digit
-		}
-		if current > result {
-			result = current
+			if s+1 >= span && current > max {
+				max = current
+			}
+			mem[s%span] = d
+			s++
 		}
 	}
-	return result, nil
+	return max, nil
 }
